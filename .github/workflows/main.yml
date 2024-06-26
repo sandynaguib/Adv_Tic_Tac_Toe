@@ -32,3 +32,5 @@ jobs:
         cd build
         qmake ../Tic_Tac_Toe_Game_Application/Tic_Tac_Toe_Game_Application.pro
         make
+    - name: Run Bash script
+      run: chmod u+x ./Tic_Tac_Toe_Game_Application/myscript.sh && ./Tic_Tac_Toe_Game_Application/myscript.sh
