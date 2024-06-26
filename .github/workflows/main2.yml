@@ -35,13 +35,5 @@ jobs:
 
 
 
-
-
-
-
-
-
-
-
     - name: Run Bash script
-      run: ./Tic_Tac_Toe_Game_myscript.sh/myscript.sh
+      run: ./Tic_Tac_Toe_Game_Application/myscript.sh
