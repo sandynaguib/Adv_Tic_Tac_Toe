@@ -1,0 +1,16 @@
+name: CI/CD Pipeline
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Run myscript script
+      run: |
+        chmod +x myscript.sh
+        ./myscript.sh
