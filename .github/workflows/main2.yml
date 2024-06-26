@@ -43,5 +43,5 @@ jobs:
 
 
 
-- name: Run Bash script
+    - name: Run Bash script
       run: ./Tic_Tac_Toe_Game_myscript.sh/myscript.sh
