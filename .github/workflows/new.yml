@@ -1,4 +1,4 @@
-name: Build and Deploy Qt Application
+name: Build and Deploy Qt Application on Windows
 
 on:
   push:
@@ -10,57 +10,34 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: windows-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
       - name: Set up Qt
-        if: matrix.os == 'ubuntu-latest'
-        run: sudo apt-get install -y qt5-qmake qtbase5-dev qtdeclarative5-dev
-
-      - name: Set up Qt
-        if: matrix.os == 'windows-latest'
         run: |
           choco install qt5-sdk
-
-      - name: Set up Qt
-        if: matrix.os == 'macos-latest'
-        run: brew install qt
+          setx /M PATH "C:\Qt\5.15.2\msvc2019_64\bin;%PATH%"
+        shell: bash
 
       - name: Build Qt application
         run: |
-          qmake
-          make
-        shell: bash
+          qmake CONFIG+=release
+          nmake
+        shell: cmd
 
-      - name: Deploy (Linux)
-        if: matrix.os == 'ubuntu-latest'
+      - name: Deploy Qt application
         run: |
-          mkdir -p dist
-          cp -r * dist/
-        shell: bash
-
-      - name: Deploy (Windows)
-        if: matrix.os == 'windows-latest'
-        run: |
+          windeployqt .\release\<your-application>.exe
           mkdir dist
-          xcopy * dist /s /e /y
-        shell: powershell
-
-      - name: Deploy (macOS)
-        if: matrix.os == 'macos-latest'
-        run: |
-          mkdir -p dist
-          cp -r * dist/
-        shell: bash
+          xcopy .\release dist /s /e /y
+        shell: cmd
 
       - name: Archive production artifacts
         uses: actions/upload-artifact@v2
         with:
           name: my-qt-app
           path: dist
+       
