@@ -1,24 +1,66 @@
-name: Deploy Project
+name: Build and Deploy Qt Application
 
 on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Set up SSH
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Set up Qt
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get install -y qt5-qmake qtbase5-dev qtdeclarative5-dev
 
-      - name: Run Deployment Script
+      - name: Set up Qt
+        if: matrix.os == 'windows-latest'
         run: |
-          chmod +x ./myscript.sh
-          ./myscript.sh
+          choco install qt5-sdk
+
+      - name: Set up Qt
+        if: matrix.os == 'macos-latest'
+        run: brew install qt
+
+      - name: Build Qt application
+        run: |
+          qmake
+          make
+        shell: bash
+
+      - name: Deploy (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          mkdir -p dist
+          cp -r * dist/
+        shell: bash
+
+      - name: Deploy (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          mkdir dist
+          xcopy * dist /s /e /y
+        shell: powershell
+
+      - name: Deploy (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          mkdir -p dist
+          cp -r * dist/
+        shell: bash
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: my-qt-app
+          path: dist
